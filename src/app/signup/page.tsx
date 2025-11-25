@@ -1,8 +1,28 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../context/AuthContext';
 
 export default function SignUpPage() {
+  const { register } = useAuth();
+  const router = useRouter();
+
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await register(email, pw);
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message || 'Signup failed');
+    }
+  };
+  console.log('API KEY:', process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
   return (
     <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
       <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md w-[90%] max-w-xl'>
@@ -10,7 +30,7 @@ export default function SignUpPage() {
           Sign Up
         </h1>
 
-        <form className='flex flex-col gap-4'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
           <div>
             <label
               htmlFor='email'
@@ -21,7 +41,9 @@ export default function SignUpPage() {
             <input
               type='email'
               id='email'
+              value={email}
               placeholder='you@example.com'
+              onChange={(e) => setEmail(e.target.value)}
               className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 border border-slate-300 w-full mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-700 dark:border-slate-600'
             />
           </div>
@@ -36,10 +58,13 @@ export default function SignUpPage() {
             <input
               type='password'
               id='password'
+              value={pw}
+              onChange={(e) => setPw(e.target.value)}
               placeholder='••••••••'
               className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 border border-slate-300 w-full mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-700 dark:border-slate-600'
             />
           </div>
+          {error && <p className='text-red-500 text-sm'>{error}</p>}
 
           <button
             type='submit'

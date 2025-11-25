@@ -1,14 +1,34 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await login(email, pw);
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   return (
     <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
       <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md w-[90%] max-w-md mx-auto'>
         <h1 className='text-3xl font-bold text-center mb-6 pt-3'>Login</h1>
 
-        <form className='flex flex-col gap-4'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
           <div>
             <label
               htmlFor='email'
@@ -18,8 +38,9 @@ export default function LoginPage() {
             </label>
             <input
               type='email'
-              id='email'
+              value={email}
               placeholder='you@example.com'
+              onChange={(e) => setEmail(e.target.value)}
               className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 border border-slate-300 w-full mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-700 dark:border-slate-600'
             />
           </div>
@@ -33,11 +54,13 @@ export default function LoginPage() {
             </label>
             <input
               type='password'
-              id='password'
+              value={pw}
               placeholder='Enter your password'
-              className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 border border-slate-300 w-full mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-700 dark:border-slate-600'
+              onChange={(e) => setPw(e.target.value)}
+              className='bg-amber-900 text-white rounded-lg p-2 w-full'
             />
           </div>
+          {error && <p className='text-red-500'>{error}</p>}
 
           <button
             type='submit'
