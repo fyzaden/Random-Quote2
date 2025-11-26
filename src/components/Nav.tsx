@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const [enabled, setEnabled] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserTheme } = useAuth();
 
   useEffect(() => {
     document.documentElement.classList.remove('dark');
@@ -14,13 +14,15 @@ export default function Navbar() {
 
   function toggleTheme() {
     const html = document.documentElement;
+    const newTheme = enabled ? 'light' : 'dark';
 
-    if (enabled) {
-      html.classList.remove('dark');
-      setEnabled(false);
-    } else {
-      html.classList.add('dark');
-      setEnabled(true);
+    if (newTheme === 'dark') html.classList.add('dark');
+    else html.classList.remove('dark');
+
+    setEnabled(!enabled);
+
+    if (user) {
+      updateUserTheme(newTheme);
     }
   }
 
