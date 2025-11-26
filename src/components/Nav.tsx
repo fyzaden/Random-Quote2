@@ -30,8 +30,15 @@ export default function Navbar() {
         <Link href='/'>Home</Link>
         <Link href='/admin'>Admin</Link>
 
-        <Link href='/login'>Login</Link>
-        <button onClick={() => logout()}>Log out</button>
+        {user ? (
+          <button onClick={logout} className='hover:underline'>
+            Log out
+          </button>
+        ) : (
+          <Link href='/login' className='hover:underline'>
+            Login
+          </Link>
+        )}
       </div>
       <Switch
         checked={enabled}
