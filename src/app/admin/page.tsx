@@ -9,17 +9,33 @@ export default function AdminPage() {
   const { user } = useAuth();
   const [quote, setQuote] = useState('');
   const [author, setAuthor] = useState('');
+  const [message, setMessage] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return alert('You must be logged in!');
 
-    await addQuote(quote, author, user.uid);
+    if (!user) {
+      setMessage('You must be logged in!');
+      return;
+    }
 
-    setQuote('');
-    setAuthor('');
-    alert('Quote added successfully!');
+    if (!quote.trim() || !author.trim()) {
+      setMessage('Quote and author cannot be empty.');
+      return;
+    }
+
+    try {
+      await addQuote(quote, author, user.uid);
+
+      setQuote('');
+      setAuthor('');
+      setMessage('Quote added successfully!');
+    } catch (err: any) {
+      setMessage(err.message);
+      console.error('Add quote error:', err);
+    }
   }
+
   return (
     <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
       <Card>
@@ -29,6 +45,7 @@ export default function AdminPage() {
             value={quote}
             onChange={(e) => setQuote(e.target.value)}
             className='bg-amber-900 text-white p-2 rounded-lg'
+            placeholder='Enter quote...'
           />
 
           <label className='font-bold text-amber-950 mt-2'>Author</label>
@@ -36,9 +53,14 @@ export default function AdminPage() {
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             className='bg-amber-900 text-white p-2 rounded-lg'
+            placeholder='Enter author...'
           />
 
           <Button type='submit' label='Add Quote' />
+
+          {message && (
+            <p className='text-center mt-4 text-white font-medium'>{message}</p>
+          )}
         </form>
       </Card>
     </main>

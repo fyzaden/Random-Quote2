@@ -1,26 +1,30 @@
-import '../lib/firebase';
+import { db } from './firebase';
 import {
-  getFirestore,
   collection,
-  addDoc,
   getDocs,
-  deleteDoc,
+  addDoc,
   updateDoc,
+  deleteDoc,
   doc,
-  serverTimestamp,
   increment,
+  serverTimestamp,
+  query,
+  where,
 } from 'firebase/firestore';
-
-const db = getFirestore();
 
 export async function getAllQuotes() {
   const ref = collection(db, 'quotes');
   const snap = await getDocs(ref);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const quoteList = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+  return quoteList;
 }
 
-export async function addQuote(quote: string, author: string, userId: string) {
+export async function addQuote(quote: string, author: string, userId?: string) {
+  if (!userId) throw new Error('No user ID provided');
+
   const ref = collection(db, 'quotes');
+
   await addDoc(ref, {
     quote,
     author,
@@ -46,7 +50,12 @@ export async function updateQuote(
     author: newAuthor,
   });
 }
-
+export async function getUserQuotes(userId: string) {
+  const ref = collection(db, 'quotes');
+  const q = query(ref, where('userId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
 export async function likeQuote(id: string) {
   const ref = doc(db, 'quotes', id);
   await updateDoc(ref, {

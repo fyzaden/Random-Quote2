@@ -26,7 +26,9 @@ export default function LoginPage() {
   return (
     <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
       <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md w-[90%] max-w-md mx-auto'>
-        <h1 className='text-3xl font-bold text-center mb-6 pt-3'>Login</h1>
+        <h1 className='text-3xl font-bold text-center mb-6 pt-3 text-slate-800 dark:text-slate-100'>
+          Login
+        </h1>
 
         <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
           <div>
@@ -41,7 +43,8 @@ export default function LoginPage() {
               value={email}
               placeholder='you@example.com'
               onChange={(e) => setEmail(e.target.value)}
-              className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 border border-slate-300 w-full mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:bg-slate-700 dark:border-slate-600'
+              className='bg-slate-200 dark:bg-[#161b22] dark:text-white 
+              border border-slate-300 dark:border-slate-600 rounded-lg p-2 w-full'
             />
           </div>
 
@@ -57,7 +60,8 @@ export default function LoginPage() {
               value={pw}
               placeholder='Enter your password'
               onChange={(e) => setPw(e.target.value)}
-              className='bg-amber-900 text-white rounded-lg p-2 w-full'
+              className='bg-slate-200 dark:bg-[#161b22] dark:text-white 
+              border border-slate-300 dark:border-slate-600 rounded-lg p-2 w-full'
             />
           </div>
           {error && <p className='text-red-500'>{error}</p>}

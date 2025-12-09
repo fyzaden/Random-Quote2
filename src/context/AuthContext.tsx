@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
+
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -8,9 +15,10 @@ import {
   signOut,
   User,
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+
+import { auth, db } from '@/lib/firebase';
 
 type AuthContextType = {
   user: User | null;
@@ -21,7 +29,6 @@ type AuthContextType = {
   updateUserTheme: (theme: 'light' | 'dark') => Promise<void>;
 };
 
-// ---------------------------------------
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
@@ -30,41 +37,39 @@ export const useAuth = () => {
   return ctx;
 };
 
-async function loadUserData(uid: string) {
-  const ref = doc(db, 'users', uid);
-  const snap = await getDoc(ref);
-  return snap.exists() ? snap.data() : null;
-}
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (fbUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setUser(fbUser);
 
       if (fbUser) {
-        const data = await loadUserData(fbUser.uid);
-        const theme = data?.theme ?? 'light';
+        const ref = doc(db, 'users', fbUser.uid);
+        const snap = await getDoc(ref);
 
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
+        if (snap.exists()) {
+          const data = snap.data();
+
+          if (data.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
         }
       }
 
       setLoading(false);
     });
 
-    return () => unsub();
+    return unsubscribe;
   }, []);
 
   const register = async (email: string, password: string) => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const res = await createUserWithEmailAndPassword(auth, email, password);
 
-    await setDoc(doc(db, 'users', cred.user.uid), {
+    await setDoc(doc(db, 'users', res.user.uid), {
       email,
       theme: 'light',
     });
@@ -76,28 +81,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
+    document.documentElement.classList.remove('dark');
   };
 
   const updateUserTheme = async (theme: 'light' | 'dark') => {
     if (!user) return;
 
-    await updateDoc(doc(db, 'users', user.uid), {
-      theme,
-    });
+    const ref = doc(db, 'users', user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        email: user.email || '',
+        theme,
+      });
+    } else {
+      await updateDoc(ref, { theme });
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        register,
-        login,
-        logout,
-        updateUserTheme,
-      }}
+      value={{ user, loading, register, login, logout, updateUserTheme }}
     >
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

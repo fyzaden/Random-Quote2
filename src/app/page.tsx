@@ -8,7 +8,7 @@ import { getAllQuotes, likeQuote } from '../lib/quotes';
 export default function Home() {
   const [quotes, setQuotes] = useState<any[]>([]);
   const [current, setCurrent] = useState(0);
-  const [liked, setLiked] = useState<number[]>([]);
+  const [hasUserLikedOnce, setHasUserLikedOnce] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -16,18 +16,26 @@ export default function Home() {
       const data = await getAllQuotes();
       setQuotes(data);
 
-      setCurrent(Math.floor(Math.random() * data.length));
+      if (data.length > 0) {
+        setCurrent(Math.floor(Math.random() * data.length));
+      }
+      setIsLoading(false);
     }
+
     load();
   }, []);
 
-  if (quotes.length === 0) return <p>Loading...</p>;
+  if (isLoading) {
+    return <p className='p-10'>Loading...</p>;
+  }
 
+  if (quotes.length === 0) {
+    return <p className='p-10'>No quotes found.</p>;
+  }
   const q = quotes[current];
-  async function handleLike() {
-    if (liked.includes(q.id)) return;
 
-    await likeQuote(q.id); // firestore update
+  async function handleLike() {
+    await likeQuote(q.id);
 
     setQuotes((prev) =>
       prev.map((item) =>
@@ -37,9 +45,15 @@ export default function Home() {
       ),
     );
 
-    setLiked([...liked, q.id]);
+    if (!hasUserLikedOnce.includes(q.id)) {
+      setHasUserLikedOnce((prevLiked) => [...prevLiked, q.id]);
+    }
   }
-
+  function handleNewQuote() {
+    const random = Math.floor(Math.random() * quotes.length);
+    setCurrent(random);
+  }
+  const isQuoteLiked = hasUserLikedOnce.includes(q.id);
   return (
     <main
       className='flex min-h-dvh items-center justify-center 
@@ -49,13 +63,15 @@ export default function Home() {
       <Card>
         <div className='flex items-center gap-2 absolute top-4 right-4'>
           <button onClick={handleLike}>
-            {liked.includes(q.id) ? (
-              <FaHeart className='text-red-500 text-2xl transition-transform duration-300 hover:scale-125' />
+            {isQuoteLiked ? (
+              <FaHeart className='text-red-500 text-2xl' />
             ) : (
-              <FaRegHeart className='text-black text-2xl transition-transform duration-300 hover:scale-125' />
+              <FaRegHeart className='text-black text-2xl dark:text-white' />
             )}
           </button>
-          <span className='text-slate-800 font-medium'>{q.likeCount || 0}</span>
+          <span className='text-slate-800 dark:text-white font-medium'>
+            {q.likeCount || 0}
+          </span>
         </div>
 
         <Title label={q.quote} align={align.center} />
@@ -63,7 +79,7 @@ export default function Home() {
         <div className='text-end italic mt-4'>{q.author}</div>
 
         <button
-          onClick={() => setCurrent(Math.floor(Math.random() * quotes.length))}
+          onClick={handleNewQuote}
           className='bg-amber-900 text-white mt-4 p-2 rounded-lg'
         >
           New Quote
