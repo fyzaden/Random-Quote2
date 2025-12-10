@@ -1,34 +1,35 @@
-export const align = {
-  center: 'center',
-  left: 'left',
-  right: 'right',
-} as const;
+import React from 'react';
 
-type AlignType = keyof typeof align;
+export enum align {
+  left = 'text-left',
+  center = 'text-center',
+  right = 'text-right',
+}
 
-type TitleProps = {
+export function Title({
+  label,
+  align = 'text-center',
+  className = '',
+}: {
   label: string;
-  align: AlignType;
-};
-export function Title({ label, align }: TitleProps) {
-  function alignText() {
-    switch (align) {
-      case 'center':
-        return 'text-center';
-      case 'left':
-        return 'text-start';
-      case 'right':
-        return 'text-end';
-      default:
-        return '';
-    }
-  }
-
+  align?: align | string;
+  className?: string;
+}) {
   return (
-    <h2
-      className={`font-bold text-slate-600 text-xl sm:text-xl md:text-2xl ${alignText()}`}
+    <h1
+      className={`
+        h1-serif
+        text-3xl 
+        md:text-4xl
+        font-bold 
+        leading-snug 
+        text-[var(--text)]
+        tracking-wide
+        ${align}
+        ${className}
+      `}
     >
       {label}
-    </h2>
+    </h1>
   );
 }

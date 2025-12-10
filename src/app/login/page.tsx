@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -24,61 +24,54 @@ export default function LoginPage() {
   };
 
   return (
-    <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
-      <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md w-[90%] max-w-md mx-auto'>
-        <h1 className='text-3xl font-bold text-center mb-6 pt-3 text-slate-800 dark:text-slate-100'>
+    <main className='min-h-dvh flex items-center justify-center p-6'>
+      <div className='card-paper w-full max-w-md p-8 rounded-xl'>
+        <h1 className='text-3xl font-serif font-bold text-center mb-6'>
           Login
         </h1>
 
         <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
           <div>
-            <label
-              htmlFor='email'
-              className='block text-sm text-amber-950 dark:text-slate-300 font-bold'
-            >
+            <label className='block text-sm font-semibold text-muted'>
               Email
             </label>
             <input
               type='email'
+              className='w-full p-2 mt-1 rounded border bg-transparent'
               value={email}
               placeholder='you@example.com'
               onChange={(e) => setEmail(e.target.value)}
-              className='bg-slate-200 dark:bg-[#161b22] dark:text-white 
-              border border-slate-300 dark:border-slate-600 rounded-lg p-2 w-full'
             />
           </div>
 
           <div>
-            <label
-              htmlFor='password'
-              className='block text-sm font-bold text-amber-950 dark:text-slate-300'
-            >
+            <label className='block text-sm font-semibold text-muted'>
               Password
             </label>
             <input
               type='password'
+              className='w-full p-2 mt-1 rounded border bg-transparent'
+              placeholder='••••••••'
               value={pw}
-              placeholder='Enter your password'
               onChange={(e) => setPw(e.target.value)}
-              className='bg-slate-200 dark:bg-[#161b22] dark:text-white 
-              border border-slate-300 dark:border-slate-600 rounded-lg p-2 w-full'
             />
           </div>
-          {error && <p className='text-red-500'>{error}</p>}
+
+          {error && <p className='text-red-500 text-sm'>{error}</p>}
 
           <button
             type='submit'
-            className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 mt-4'
+            className='btn bg-[var(--accent)] text-white hover:bg-[var(--accent-light)] w-full mt-4'
           >
             Login
           </button>
         </form>
 
-        <p className='text-center text-sm mt-6 text-slate-700 dark:text-slate-400'>
-          Don{"'"}t have an account?{' '}
+        <p className='text-center text-sm mt-6 text-muted'>
+          Don't have an account?{' '}
           <Link
             href='/signup'
-            className='text-amber-700 dark:text-amber-400 font-semibold hover:underline'
+            className='text-[var(--accent)] font-semibold hover:underline'
           >
             Join
           </Link>
