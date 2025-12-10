@@ -48,6 +48,7 @@ export default function Navbar() {
         <Link href='/'>Home</Link>
         <Link href='/admin'>Admin</Link>
         {user && <Link href='/add-quote'>Add Quote</Link>}
+        {user && <Link href='/my-quotes'>My Quotes</Link>}
 
         {user ? (
           <>
@@ -59,7 +60,6 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* THEME SWITCH */}
       <Switch
         checked={theme === 'dark'}
         onChange={toggleTheme}

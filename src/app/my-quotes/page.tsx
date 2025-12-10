@@ -1,17 +1,18 @@
 'use client';
-
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { getUserQuotes } from '@/lib/quotes';
-import Link from 'next/link';
+import { useAuth } from '../../context/AuthContext';
+import { getUserQuotes, deleteQuote, updateQuote } from '../../lib/quotes';
 
 export default function MyQuotesPage() {
   const { user } = useAuth();
   const [quotes, setQuotes] = useState<any[]>([]);
-
-  if (!user) return <p className='p-10'>Login required.</p>;
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editQuote, setEditQuote] = useState('');
+  const [editAuthor, setEditAuthor] = useState('');
 
   useEffect(() => {
+    if (!user) return;
+
     async function load() {
       const data = await getUserQuotes(user.uid);
       setQuotes(data);
@@ -19,34 +20,76 @@ export default function MyQuotesPage() {
     load();
   }, [user]);
 
+  if (!user) return <p className='p-10'>Please login</p>;
+
   return (
-    <main className='p-8'>
-      <h1 className='text-2xl font-bold mb-6'>My Quotes</h1>
+    <main className='p-10 text-white'>
+      <h1 className='text-3xl font-bold mb-6'>My Quotes</h1>
 
-      {quotes.length === 0 && <p>You have no quotes yet.</p>}
-
-      <div className='flex flex-col gap-4'>
-        {quotes.map((q) => (
-          <div
-            key={q.id}
-            className='p-4 bg-white dark:bg-slate-800 rounded shadow flex justify-between items-center'
-          >
+      {quotes.map((q) => (
+        <div key={q.id} className='mb-6 p-4 bg-amber-900 rounded-lg'>
+          {editingId === q.id ? (
+            // EDIT FORM
             <div>
-              <p className='font-bold'>{q.quote}</p>
-              <p className='text-sm italic'>{q.author}</p>
-            </div>
+              <input
+                className='w-full p-2 mb-2 rounded'
+                value={editQuote}
+                onChange={(e) => setEditQuote(e.target.value)}
+              />
+              <input
+                className='w-full p-2 mb-2 rounded'
+                value={editAuthor}
+                onChange={(e) => setEditAuthor(e.target.value)}
+              />
 
-            <div className='flex gap-3'>
-              <Link href={`/edit-quote/${q.id}`} className='text-blue-600'>
-                Edit
-              </Link>
-              <Link href={`/delete-quote/${q.id}`} className='text-red-600'>
-                Delete
-              </Link>
+              <button
+                onClick={async () => {
+                  await updateQuote(q.id, editQuote, editAuthor);
+                  setEditingId(null);
+                  window.location.reload();
+                }}
+                className='bg-green-600 px-3 py-1 rounded mr-2'
+              >
+                Save
+              </button>
+
+              <button
+                onClick={() => setEditingId(null)}
+                className='bg-gray-600 px-3 py-1 rounded'
+              >
+                Cancel
+              </button>
             </div>
-          </div>
-        ))}
-      </div>
+          ) : (
+            // NORMAL VIEW
+            <div>
+              <p className='text-xl mb-2'>“{q.quote}”</p>
+              <p className='italic mb-2'>— {q.author}</p>
+
+              <button
+                onClick={() => {
+                  setEditingId(q.id);
+                  setEditQuote(q.quote);
+                  setEditAuthor(q.author);
+                }}
+                className='bg-blue-600 px-3 py-1 rounded mr-2'
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={async () => {
+                  await deleteQuote(q.id);
+                  window.location.reload();
+                }}
+                className='bg-red-600 px-3 py-1 rounded'
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
     </main>
   );
 }

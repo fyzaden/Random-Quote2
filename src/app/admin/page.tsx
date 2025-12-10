@@ -1,68 +1,54 @@
 'use client';
-import { useState } from 'react';
-import Card from '../../components/Card';
-import Button from '../../components/Button';
-import { useAuth } from '../../context/AuthContext';
-import { addQuote } from '../../lib/quotes';
+
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminPage() {
-  const { user } = useAuth();
-  const [quote, setQuote] = useState('');
-  const [author, setAuthor] = useState('');
-  const [message, setMessage] = useState('');
+  const { user, loading } = useAuth();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  if (loading) {
+    return (
+      <main className='min-h-dvh flex items-center justify-center'>
+        <p>Loading...</p>
+      </main>
+    );
+  }
 
-    if (!user) {
-      setMessage('You must be logged in!');
-      return;
-    }
-
-    if (!quote.trim() || !author.trim()) {
-      setMessage('Quote and author cannot be empty.');
-      return;
-    }
-
-    try {
-      await addQuote(quote, author, user.uid);
-
-      setQuote('');
-      setAuthor('');
-      setMessage('Quote added successfully!');
-    } catch (err: any) {
-      setMessage(err.message);
-      console.error('Add quote error:', err);
-    }
+  if (!user) {
+    return (
+      <main className='min-h-dvh flex items-center justify-center'>
+        <p className='text-center'>
+          You must be logged in to access the admin panel.
+        </p>
+      </main>
+    );
   }
 
   return (
-    <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
-      <Card>
-        <form onSubmit={handleSubmit} className='flex flex-col'>
-          <label className='font-bold text-amber-950'>Quote</label>
-          <input
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-            className='bg-amber-900 text-white p-2 rounded-lg'
-            placeholder='Enter quote...'
-          />
+    <main className='min-h-dvh flex items-center justify-center p-8 bg-slate-100 dark:bg-slate-900'>
+      <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow w-full max-w-md text-center'>
+        <h1 className='text-2xl font-bold mb-4'>Welcome, {user.email}</h1>
 
-          <label className='font-bold text-amber-950 mt-2'>Author</label>
-          <input
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className='bg-amber-900 text-white p-2 rounded-lg'
-            placeholder='Enter author...'
-          />
+        <p className='text-slate-700 dark:text-slate-300 mb-6'>
+          This is your admin dashboard.
+        </p>
 
-          <Button type='submit' label='Add Quote' />
+        <div className='flex flex-col gap-4'>
+          <Link
+            href='/add-quote'
+            className='bg-amber-900 text-white py-2 rounded-lg hover:bg-amber-700'
+          >
+            ➕ Add New Quote
+          </Link>
 
-          {message && (
-            <p className='text-center mt-4 text-white font-medium'>{message}</p>
-          )}
-        </form>
-      </Card>
+          <Link
+            href='/my-quotes'
+            className='bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-600'
+          >
+            📜 My Quotes
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }
