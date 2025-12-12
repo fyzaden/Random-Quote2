@@ -65,7 +65,7 @@ export default function AdminPage() {
 
               <button
                 onClick={() => setAdmin(u.id, !u.admin).then(loadUsers)}
-                className='btn mt-3 bg-[var(--accent)] text-white hover:bg-[var(--accent-light)]'
+                className='btn mt-3 bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]'
               >
                 {u.admin ? 'Remove Admin' : 'Make Admin'}
               </button>

@@ -8,40 +8,34 @@ import { getValidatedQuotes, likeQuote } from '../lib/quotes';
 
 export default function Home() {
   const [quotes, setQuotes] = useState<any[]>([]);
-  const [current, setCurrent] = useState<number | null>(null);
+  const [current, setCurrent] = useState(0);
   const [likedIds, setLikedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let ignore = false;
-
     async function load() {
       try {
         const data = await getValidatedQuotes();
 
-        if (!ignore) {
-          setQuotes(data);
-          if (data.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.length);
-            setCurrent(randomIndex);
-          }
-          setLoading(false);
+        setQuotes(data);
+
+        if (data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length);
+          setCurrent(randomIndex);
         }
+
+        setLoading(false);
       } catch (err) {
-        console.error('LOAD ERROR:', err);
+        console.error(err);
+        setLoading(false);
       }
     }
 
     load();
-
-    return () => {
-      ignore = true;
-    };
   }, []);
 
   if (loading) return <p className='p-10'>Loading...</p>;
-  if (!quotes.length || current === null)
-    return <p className='p-10'>No quotes found.</p>;
+  if (!quotes.length) return <p className='p-10'>No quotes found.</p>;
 
   const q = quotes[current];
   const isLiked = likedIds.includes(q.id);
@@ -50,7 +44,6 @@ export default function Home() {
     try {
       await likeQuote(q.id);
 
-      // UI Update
       setQuotes((prev) =>
         prev.map((item) =>
           item.id === q.id
@@ -59,23 +52,19 @@ export default function Home() {
         ),
       );
 
-      if (!isLiked) {
-        setLikedIds((prev) => [...prev, q.id]);
-      }
+      if (!isLiked) setLikedIds((prev) => [...prev, q.id]);
     } catch (err) {
-      console.error('LIKE ERROR:', err);
+      console.error(err);
     }
   }
 
   function handleNewQuote() {
-    if (quotes.length <= 1) return;
+    if (quotes.length < 2) return;
 
     let index = Math.floor(Math.random() * quotes.length);
-
     while (index === current) {
       index = Math.floor(Math.random() * quotes.length);
     }
-
     setCurrent(index);
   }
 
@@ -104,8 +93,7 @@ export default function Home() {
 
         <button
           onClick={handleNewQuote}
-          className='btn bg-[var(--accent)] hover:bg-[var(--accent-hover)] 
-          text-white mt-4 w-full rounded-lg p-2'
+          className='btn bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white mt-4 w-full rounded-lg p-2'
         >
           New Quote
         </button>
