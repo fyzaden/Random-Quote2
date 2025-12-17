@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Switch } from '@headlessui/react';
-export const Navbar = () => {
+
+export default function Navbar() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -60,5 +61,4 @@ export const Navbar = () => {
       </Switch>
     </nav>
   );
-};
-export default Navbar;
+}

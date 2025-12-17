@@ -1,14 +1,23 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { quotes } from '../../quotes.js';
-import Card from '../components/Card.jsx';
-import { Title, align } from '../components/Title.jsx';
+import { quotes } from '../../quotes';
+import Card from '../components/Card';
+import { Title, align } from '../components/Title';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import type { Quote } from '../types/quote';
 
 export default function Home() {
-  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(null);
-  const [quoteList, setQuoteList] = useState(quotes);
-  const [likedQuotes, setLikedQuotes] = useState([]);
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState<number | null>(
+    null,
+  );
+  const [quoteList, setQuoteList] = useState<Quote[]>(
+    quotes.map((q) => ({
+      quote: q.quote,
+      author: q.author,
+      likeCount: (q as any).likeCount ?? (q as any).likCount ?? 0,
+    })),
+  );
+  const [likedQuotes, setLikedQuotes] = useState<number[]>([]);
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * quotes.length);
