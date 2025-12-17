@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useState, useContext, ReactNode } from 'react';
-import { quotes as quotesArray } from '../../quotes';
+import { quotes as quotesArray } from '../data/quotes';
 import { Quote } from '../types/quote';
 
 type QuotesContextType = {
@@ -25,7 +25,7 @@ export const QuotesProvider = ({ children }: { children: ReactNode }) => {
     ...quotesArray.map((q) => ({
       quote: (q as any).quote,
       author: (q as any).author,
-      // handle possible typo 'likCount' and ensure likeCount is always present
+
       likeCount: (q as any).likeCount ?? (q as any).likCount ?? 0,
     })),
     { quote: 'Dummy quote', author: 'Dummy quote author', likeCount: 0 },

@@ -1,54 +1,54 @@
 'use client';
 
-import Card from '../../components/Card';
-import Button from '../../components/Button';
-import { useState } from 'react';
-import { useQuotesDispatchContext } from '../QuotesContext';
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminPage() {
-  const [quote, setQuote] = useState<string>('');
-  const [author, setAuthor] = useState<string>('');
+  const { user, loading } = useAuth();
 
-  const { handleUpdateQuotes } = useQuotesDispatchContext();
+  if (loading) {
+    return (
+      <main className='min-h-dvh flex items-center justify-center'>
+        <p>Loading...</p>
+      </main>
+    );
+  }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    handleUpdateQuotes({ quote, author });
-    setQuote('');
-    setAuthor('');
+  if (!user) {
+    return (
+      <main className='min-h-dvh flex items-center justify-center'>
+        <p className='text-center'>
+          You must be logged in to access the admin panel.
+        </p>
+      </main>
+    );
   }
 
   return (
-    <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
-      <Card>
-        <form className='flex flex-col' onSubmit={handleSubmit}>
-          <label className='font-bold text-amber-950' htmlFor='quote'>
-            Quote
-          </label>
+    <main className='min-h-dvh flex items-center justify-center p-8 bg-slate-100 dark:bg-slate-900'>
+      <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow w-full max-w-md text-center'>
+        <h1 className='text-2xl font-bold mb-4'>Welcome, {user.email}</h1>
 
-          <input
-            type='text'
-            id='quote'
-            className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2'
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-          />
+        <p className='text-slate-700 dark:text-slate-300 mb-6'>
+          This is your admin dashboard.
+        </p>
 
-          <label className='font-bold text-amber-950 mt-2' htmlFor='author'>
-            Author
-          </label>
+        <div className='flex flex-col gap-4'>
+          <Link
+            href='/add-quote'
+            className='bg-amber-900 text-white py-2 rounded-lg hover:bg-amber-700'
+          >
+            ➕ Add New Quote
+          </Link>
 
-          <input
-            type='text'
-            id='author'
-            className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2'
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-
-          <Button label='Add a quote' type='submit' />
-        </form>
-      </Card>
+          <Link
+            href='/my-quotes'
+            className='bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-600'
+          >
+            📜 My Quotes
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }
