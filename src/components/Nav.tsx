@@ -2,9 +2,11 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Switch } from '@headlessui/react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const [enabled, setEnabled] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     document.documentElement.classList.remove('dark');
@@ -27,7 +29,16 @@ export default function Navbar() {
       <div className=' flex gap-4'>
         <Link href='/'>Home</Link>
         <Link href='/admin'>Admin</Link>
-        <Link href='/login'>Login</Link>
+
+        {user ? (
+          <button onClick={logout} className='hover:underline'>
+            Log out
+          </button>
+        ) : (
+          <Link href='/login' className='hover:underline'>
+            Login
+          </Link>
+        )}
       </div>
       <Switch
         checked={enabled}
