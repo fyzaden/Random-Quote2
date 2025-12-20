@@ -26,7 +26,7 @@ export const QuotesProvider = ({ children }: { children: ReactNode }) => {
       quote: (q as any).quote,
       author: (q as any).author,
 
-      likeCount: (q as any).likeCount ?? (q as any).likCount ?? 0,
+      likeCount: (q as any).likeCount ?? (q as any).likeCount ?? 0,
     })),
     { quote: 'Dummy quote', author: 'Dummy quote author', likeCount: 0 },
   ]);

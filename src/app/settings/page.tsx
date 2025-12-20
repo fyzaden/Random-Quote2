@@ -1,110 +1,93 @@
 'use client';
 
-import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
-import {
-  updateEmail,
-  deleteUser,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from 'firebase/auth';
-import { doc, deleteDoc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { updateEmail, deleteUser } from 'firebase/auth';
 
-export default function SettingsPage() {
+export default function UserSettingsPage() {
   const { user } = useAuth();
+  const router = useRouter();
 
   const [newEmail, setNewEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  if (!user) return <p className='p-10'>Login required.</p>;
+  if (!user) {
+    return (
+      <main className='min-h-dvh flex items-center justify-center'>
+        <p>You must be logged in.</p>
+      </main>
+    );
+  }
 
-  async function handleEmailUpdate() {
-    if (!newEmail || !password) {
-      setMessage('Enter email and password.');
-      return;
-    }
+  const handleEmailUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
 
     try {
-      // 1) REAUTHENTICATE
-      const cred = EmailAuthProvider.credential(user.email!, password);
-      await reauthenticateWithCredential(user, cred);
-
-      // 2) UPDATE EMAIL
       await updateEmail(user, newEmail);
-
-      // 3) ENSURE USER DOC EXISTS
-      const ref = doc(db, 'users', user.uid);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          email: newEmail,
-          theme: 'light',
-        });
-      } else {
-        await updateDoc(ref, { email: newEmail });
-      }
-
-      setMessage('Email updated successfully! Please login again.');
+      setMessage('Email successfully updated!');
     } catch (err: any) {
-      console.log('ERROR:', err);
       setMessage(err.message);
     }
-  }
 
-  async function handleDeleteAccount() {
-    const ok = confirm('Are you sure? This action is permanent.');
-    if (!ok) return;
+    setLoading(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmDelete = confirm('Are you sure? This cannot be undone.');
+    if (!confirmDelete) return;
+
+    setLoading(true);
+    setMessage(null);
 
     try {
-      await deleteDoc(doc(db, 'users', user.uid));
       await deleteUser(user);
+      router.push('/signup');
     } catch (err: any) {
       setMessage(err.message);
     }
-  }
+
+    setLoading(false);
+  };
 
   return (
-    <main className='min-h-dvh flex items-center justify-center p-8 bg-slate-100 dark:bg-slate-900'>
-      <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md w-full max-w-md'>
-        <h1 className='text-2xl font-bold text-center mb-6'>User Settings</h1>
+    <main className='min-h-dvh flex items-center justify-center p-6'>
+      <div className='card-paper w-full max-w-md p-8 rounded-xl'>
+        <h1 className='text-3xl font-serif font-bold text-center mb-6'>
+          User Settings
+        </h1>
 
-        <div className='mb-8'>
-          <label className='font-semibold'>New Email</label>
+        <form onSubmit={handleEmailUpdate} className='space-y-4'>
+          <label className='text-sm font-semibold text-muted'>New Email</label>
           <input
             type='email'
-            className='p-2 w-full border rounded-lg mt-1 dark:bg-slate-700 dark:text-white'
+            placeholder='new email'
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
-          />
-
-          <label className='font-semibold mt-4'>Confirm Password</label>
-          <input
-            type='password'
-            className='p-2 w-full border rounded-lg mt-1 dark:bg-slate-700 dark:text-white'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            className='w-full p-2 rounded border bg-transparent'
           />
 
           <button
-            onClick={handleEmailUpdate}
-            className='bg-amber-900 hover:bg-amber-700 text-white rounded-lg p-2 mt-3 w-full'
+            type='submit'
+            disabled={loading}
+            className='btn bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white w-full'
           >
-            Update Email
+            {loading ? 'Updating...' : 'Update Email'}
           </button>
-        </div>
+        </form>
 
         <button
           onClick={handleDeleteAccount}
-          className='bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 w-full'
+          className='btn bg-red-600 hover:bg-red-700 text-white w-full mt-6'
         >
           Delete My Account
         </button>
 
         {message && (
-          <p className='text-center mt-4 dark:text-slate-300'>{message}</p>
+          <p className='mt-4 text-center text-muted text-sm'>{message}</p>
         )}
       </div>
     </main>
