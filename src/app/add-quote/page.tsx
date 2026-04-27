@@ -20,7 +20,7 @@ export default function AddQuotePage() {
   if (loading) {
     return (
       <main className='min-h-dvh flex items-center justify-center'>
-        <p>Checking authentication...</p>
+        <p className='text-muted'>Checking authentication...</p>
       </main>
     );
   }
@@ -28,7 +28,7 @@ export default function AddQuotePage() {
   if (!user) {
     return (
       <main className='min-h-dvh flex items-center justify-center'>
-        <p>Please login to add quotes.</p>
+        <p className='text-muted'>Please login to add quotes.</p>
       </main>
     );
   }
@@ -55,44 +55,46 @@ export default function AddQuotePage() {
       setIsSubmitting(false);
     }
   }
-
   return (
-    <main className='min-h-dvh flex items-center justify-center p-8 bg-slate-100 dark:bg-slate-900'>
-      <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow w-full max-w-md'>
-        <h1 className='text-xl font-bold text-center mb-6'>Add New Quote</h1>
+    <main className='min-h-dvh flex items-center justify-center p-8'>
+      <div
+        className='card-paper p-8 rounded-xl w-full max-w-lg'
+        style={{ background: 'var(--card-bg)' }}
+      >
+        <h1 className='text-2xl font-serif font-bold text-center mb-6'>
+          Add New Quote
+        </h1>
 
-        <form onSubmit={handleAdd} className='flex flex-col'>
-          <label className='font-semibold'>Quote</label>
-          <textarea
-            className='w-full p-2 border rounded dark:bg-slate-700 dark:text-white mb-4'
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-            rows={3}
-            required
-          />
+        <form onSubmit={handleAdd} className='flex flex-col gap-4'>
+          <div>
+            <label className='font-semibold text-sm'>Quote</label>
+            <textarea
+              className='w-full p-2 rounded border bg-transparent'
+              rows={3}
+              value={quote}
+              onChange={(e) => setQuote(e.target.value)}
+            />
+          </div>
 
-          <label className='font-semibold'>Author</label>
-          <input
-            className='w-full p-2 border rounded dark:bg-slate-700 dark:text-white mb-4'
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            required
-          />
+          <div>
+            <label className='font-semibold text-sm'>Author</label>
+            <input
+              className='w-full p-2 rounded border bg-transparent'
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+            />
+          </div>
 
           <button
             type='submit'
             disabled={isSubmitting}
-            className='bg-amber-900 text-white p-2 rounded disabled:opacity-50'
+            className='btn bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] disabled:opacity-50'
           >
             {isSubmitting ? 'Adding…' : 'Add Quote'}
           </button>
         </form>
 
-        {message && (
-          <p className='text-center mt-4 text-slate-700 dark:text-slate-300'>
-            {message}
-          </p>
-        )}
+        {message && <p className='text-center mt-4 text-muted'>{message}</p>}
       </div>
     </main>
   );

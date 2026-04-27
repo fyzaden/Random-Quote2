@@ -21,12 +21,7 @@ export default function DeleteQuotePage() {
         | { id: string; userId: string }
         | undefined;
 
-      if (!q) {
-        router.push('/my-quotes');
-        return;
-      }
-
-      if (q.userId !== user.uid) {
+      if (!q || q.userId !== user.uid) {
         router.push('/my-quotes');
         return;
       }
@@ -34,9 +29,14 @@ export default function DeleteQuotePage() {
       await deleteQuote(id);
       router.push('/my-quotes');
     }
-
     run();
   }, [user]);
 
-  return <p className='p-10'>Deleting...</p>;
+  return (
+    <main className='min-h-dvh flex items-center justify-center'>
+      <div className='text-center text-muted animate-pulse'>
+        Deleting your quote...
+      </div>
+    </main>
+  );
 }

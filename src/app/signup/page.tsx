@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignUpPage() {
   const { register } = useAuth();
@@ -19,68 +19,55 @@ export default function SignUpPage() {
       await register(email, pw);
       router.push('/');
     } catch (err: any) {
-      setError(err.message || 'Signup failed');
+      setError(err.message);
     }
   };
 
   return (
-    <main className='min-h-dvh flex items-center justify-center bg-gradient-to-r from-amber-400 to-red-800'>
-      <div className='bg-white dark:bg-slate-800 p-8 rounded-xl shadow-md w-[90%] max-w-xl'>
-        <h1 className='text-3xl font-bold text-center mb-6 pt-3 text-amber-950 dark:text-amber-400'>
-          Sign Up
+    <main className='min-h-dvh flex items-center justify-center p-6'>
+      <div className='card-paper w-full max-w-md p-8 rounded-xl'>
+        <h1 className='text-3xl font-serif font-bold text-center mb-6'>
+          Create Account
         </h1>
 
-        <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
+        <form onSubmit={handleSubmit} className='space-y-4'>
           <div>
-            <label
-              htmlFor='email'
-              className='block text-sm font-bold text-amber-950 dark:text-slate-300'
-            >
-              Email
-            </label>
+            <label className='text-sm font-semibold text-muted'>Email</label>
             <input
               type='email'
-              id='email'
               value={email}
               placeholder='you@example.com'
               onChange={(e) => setEmail(e.target.value)}
-              className='bg-slate-200 dark:bg-[#161b22] dark:text-white 
-              border border-slate-300 dark:border-slate-600 rounded-lg p-2 w-full'
+              className='w-full p-2 mt-1 rounded border bg-transparent'
             />
           </div>
 
           <div>
-            <label
-              htmlFor='password'
-              className='block text-sm font-bold text-amber-950 dark:text-slate-300'
-            >
-              Password
-            </label>
+            <label className='text-sm font-semibold text-muted'>Password</label>
             <input
               type='password'
-              id='password'
               value={pw}
-              onChange={(e) => setPw(e.target.value)}
               placeholder='••••••••'
-              className='bg-slate-200 dark:bg-[#161b22] dark:text-white 
-              border border-slate-300 dark:border-slate-600 rounded-lg p-2 w-full'
+              onChange={(e) => setPw(e.target.value)}
+              className='w-full p-2 mt-1 rounded border bg-transparent'
             />
           </div>
+
           {error && <p className='text-red-500 text-sm'>{error}</p>}
 
           <button
             type='submit'
-            className='bg-amber-900 hover:bg-amber-600 text-white rounded-lg p-2 mt-4'
+            className='btn bg-[var(--accent)] hover:bg-[var(--accent-light)] text-white w-full mt-3'
           >
             Create Account
           </button>
         </form>
 
-        <p className='text-center text-sm mt-6 text-slate-700 dark:text-slate-400'>
+        <p className='text-center text-sm mt-6 text-muted'>
           Already have an account?{' '}
           <Link
             href='/login'
-            className='text-amber-700 dark:text-amber-400 font-semibold hover:underline'
+            className='text-[var(--accent)] hover:underline font-semibold'
           >
             Log in.
           </Link>

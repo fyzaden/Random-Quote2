@@ -20,18 +20,29 @@ export async function getAllQuotes() {
   return quoteList;
 }
 
-export async function addQuote(quote: string, author: string, userId?: string) {
-  if (!userId) throw new Error('No user ID provided');
-
+export async function addQuote(quote: string, author: string, userId: string) {
+  if (!userId) throw new Error('No userId provided to addQuote');
   const ref = collection(db, 'quotes');
-
   await addDoc(ref, {
     quote,
     author,
     likeCount: 0,
+    validated: false,
     userId,
     createdAt: serverTimestamp(),
   });
+}
+export async function validateQuote(id: string) {
+  const ref = doc(db, 'quotes', id);
+  await updateDoc(ref, {
+    validated: true,
+  });
+}
+export async function getValidatedQuotes() {
+  const ref = collection(db, 'quotes');
+  const q = query(ref, where('validated', '==', true));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 export async function deleteQuote(id: string) {
@@ -58,7 +69,5 @@ export async function getUserQuotes(userId: string) {
 }
 export async function likeQuote(id: string) {
   const ref = doc(db, 'quotes', id);
-  await updateDoc(ref, {
-    likeCount: increment(1),
-  });
+  await updateDoc(ref, { likeCount: increment(1) });
 }
